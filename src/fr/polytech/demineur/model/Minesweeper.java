@@ -61,7 +61,7 @@ public abstract class Minesweeper implements IMinesweeperObservable
 		final Cell cell = this.boardGame[coordX][coordY];
 		if (cell.getCellType() == CellType.EMPTY)
 		{
-			// Recursive display neightbours.
+			discoverCellAndNeighborsFrom(coordX, coordY);
 		}
 		else
 		{
@@ -88,6 +88,31 @@ public abstract class Minesweeper implements IMinesweeperObservable
 				cell.show();
 				this.minesweeperObserver.setScore(++this.score);
 			}
+		}
+	}
+
+	/**
+	 * Discover the current cell and its neighbors.
+	 * 
+	 * @param coordX
+	 *            The X coordinate.
+	 * @param coordY
+	 *            The Y coordinate.
+	 */
+	private void discoverCellAndNeighborsFrom(int coordX, int coordY)
+	{
+		final Cell cell = this.boardGame[coordX][coordY];
+		if (cell.isHidden() && (cell.getCellType() == CellType.EMPTY))
+		{
+			cell.show();
+			discoverCellAndNeighborsFrom(coordX - 1, coordY - 1);
+			discoverCellAndNeighborsFrom(coordX, coordY - 1);
+			discoverCellAndNeighborsFrom(coordX + 1, coordY - 1);
+			discoverCellAndNeighborsFrom(coordX + 1, coordY);
+			discoverCellAndNeighborsFrom(coordX + 1, coordY + 1);
+			discoverCellAndNeighborsFrom(coordX, coordY + 1);
+			discoverCellAndNeighborsFrom(coordX - 1, coordY + 1);
+			discoverCellAndNeighborsFrom(coordX - 1, coordY);
 		}
 	}
 
