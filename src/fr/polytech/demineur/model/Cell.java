@@ -11,7 +11,7 @@ public class Cell
 	/**
 	 * The cell type.
 	 */
-	private final CellType cellType;
+	private CellType cellType;
 
 	/**
 	 * If the cell is hidden.
@@ -34,6 +34,17 @@ public class Cell
 		this.cellType = cellType;
 		this.isHidden = true;
 		this.isMarked = false;
+	}
+
+	/**
+	 * Set the cell type.
+	 * 
+	 * @param cellType
+	 *            The cell type.
+	 */
+	public void setCellType(CellType cellType)
+	{
+		this.cellType = cellType;
 	}
 
 	/**

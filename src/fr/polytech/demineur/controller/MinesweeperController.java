@@ -4,10 +4,18 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import fr.polytech.demineur.model.Cell;
+import fr.polytech.demineur.model.CellType;
+import fr.polytech.demineur.model.IMinesweeperObservable;
+import fr.polytech.demineur.model.RandomMinesweeper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 /**
@@ -19,13 +27,18 @@ import javafx.scene.text.Text;
 public class MinesweeperController implements Initializable, IMinesweeperObserver
 {
 	/**
+	 * The default Minesweeper size.
+	 */
+	public static final int DEFAULT_MINESWEEPER_SIZE = 16;
+
+	/**
 	 * The number of mines remaining.
 	 */
 	@FXML
 	private Text nbMinesRemaining;
 
 	/**
-	 * The current status.
+	 * The current face button.
 	 */
 	@FXML
 	private Button faceButton;
@@ -43,12 +56,53 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	private GridPane boardGame;
 
 	/**
+	 * The Minesweeper observable.
+	 */
+	private IMinesweeperObservable minesweeperObservable;
+
+	/**
 	 * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		// TODO Auto-generated method stub
+		this.nbMinesRemaining.setText(String.valueOf(0));
+		this.score.setText(String.valueOf(0));
+		this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this);
+
+		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
+		// this.faceButton.setOnAction(e ->
+		// {
+		// this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this);
+		// });
+
+		for (int x = 0; x < DEFAULT_MINESWEEPER_SIZE; x++)
+		{
+			for (int y = 0; y < DEFAULT_MINESWEEPER_SIZE; y++)
+			{
+				final int xTemp = x;
+				final int yTemp = y;
+
+				final Pane imagePane = new Pane();
+				imagePane.setOnMouseClicked(e ->
+				{
+					final MouseButton mouseButton = e.getButton();
+					if (mouseButton == MouseButton.PRIMARY)
+					{
+						this.minesweeperObservable.onLeftMouseClick(xTemp, yTemp);
+						return;
+					}
+
+					if (mouseButton == MouseButton.SECONDARY)
+					{
+						this.minesweeperObservable.onRightMouseClick(xTemp, yTemp);
+						return;
+					}
+				});
+
+				this.boardGame.add(imagePane, y, x);
+			}
+		}
 	}
 
 	/**
@@ -57,8 +111,7 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void playerIsDead()
 	{
-		// TODO Auto-generated method stub
-
+		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/sad_smiley.png"));
 	}
 
 	/**
@@ -67,8 +120,7 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void playerHasWon()
 	{
-		// TODO Auto-generated method stub
-
+		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/sun_glasses_smiley.png"));
 	}
 
 	/**
@@ -77,8 +129,38 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void updateCell(int coordX, int coordY, Cell cell)
 	{
-		// TODO Auto-generated method stub
+		if (cell.getCellType() != CellType.EMPTY)
+		{
+			for (Node node : this.boardGame.getChildren())
+			{
+				if ((node instanceof Pane) && (GridPane.getRowIndex(node) == coordX) && (GridPane.getColumnIndex(node) == coordY))
+				{
+					final Pane imagePane = (Pane) node;
 
+					final ImageView imageView = new ImageView();
+					imageView.fitWidthProperty().bind(imagePane.widthProperty());
+					imageView.fitHeightProperty().bind(imagePane.heightProperty());
+
+					if (cell.isMarked())
+					{
+						imageView.setImage(new Image("/fr/polytech/demineur/view/resources/red_flag.png"));
+						imagePane.getChildren().add(imageView);
+					}
+					else
+					{
+						if (cell.isHidden())
+						{
+							imagePane.getChildren().clear();
+						}
+						else
+						{
+							imageView.setImage(new Image(cell.getCellType().getImagePath()));
+							imagePane.getChildren().add(imageView);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -87,8 +169,7 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void setNbMinesRemaining(int nbMinesRemaining)
 	{
-		// TODO Auto-generated method stub
-
+		this.nbMinesRemaining.setText(String.valueOf(nbMinesRemaining));
 	}
 
 	/**
@@ -97,7 +178,6 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void setScore(int score)
 	{
-		// TODO Auto-generated method stub
-
+		this.score.setText(String.valueOf(score));
 	}
 }

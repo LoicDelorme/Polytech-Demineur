@@ -83,4 +83,74 @@ public enum CellType
 	{
 		return this.imagePath;
 	}
+
+	/**
+	 * Get value from a cell type.
+	 * 
+	 * @param cellType
+	 *            The cell type.
+	 * @return The corresponding value.
+	 */
+	public static int getValueFromCellType(CellType cellType)
+	{
+		switch (cellType)
+		{
+			case MINE:
+				return -1;
+			case ONE:
+				return 1;
+			case TWO:
+				return 2;
+			case THREE:
+				return 3;
+			case FOUR:
+				return 4;
+			case FIVE:
+				return 5;
+			case SIX:
+				return 6;
+			case SEVEN:
+				return 7;
+			case EIGHT:
+				return 8;
+			case EMPTY:
+			default:
+				return 0;
+		}
+	}
+
+	/**
+	 * Get cell type from a value.
+	 * 
+	 * @param value
+	 *            The value.
+	 * @return The corresponding cell type.
+	 */
+	public static CellType getCellTypeFromValue(int value)
+	{
+		switch (value)
+		{
+			case -1:
+				return MINE;
+			case 1:
+				return ONE;
+			case 2:
+				return TWO;
+			case 3:
+				return THREE;
+			case 4:
+				return FOUR;
+			case 5:
+				return FIVE;
+			case 6:
+				return SIX;
+			case 7:
+				return SEVEN;
+			case 8:
+				return EIGHT;
+			case 0:
+			default:
+				return EMPTY;
+		}
+	}
 }

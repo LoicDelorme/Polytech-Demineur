@@ -11,6 +11,11 @@ import fr.polytech.demineur.controller.IMinesweeperObserver;
 public abstract class Minesweeper implements IMinesweeperObservable
 {
 	/**
+	 * The size.
+	 */
+	protected final int size;
+
+	/**
 	 * The board game.
 	 */
 	protected final Cell[][] boardGame;
@@ -40,9 +45,19 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	 */
 	public Minesweeper(int size, IMinesweeperObserver minesweeperObserver)
 	{
+		this.size = size;
 		this.boardGame = new Cell[size][size];
+		this.nbMinesToBeMarked = 0;
 		this.score = 0;
 		this.minesweeperObserver = minesweeperObserver;
+
+		for (int x = 0; x < size; x++)
+		{
+			for (int y = 0; y < size; y++)
+			{
+				this.boardGame[x][y] = new Cell(CellType.EMPTY);
+			}
+		}
 
 		initializeBoardGame();
 	}
@@ -68,9 +83,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 			if (cell.getCellType() == CellType.MINE)
 			{
 				Cell currentCell = null;
-				for (int x = 0; x < this.boardGame.length; x++)
+				for (int x = 0; x < this.size; x++)
 				{
-					for (int y = 0; y < this.boardGame.length; y++)
+					for (int y = 0; y < this.size; y++)
 					{
 						currentCell = this.boardGame[x][y];
 						if (currentCell.getCellType() == CellType.MINE)
@@ -86,7 +101,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 			else
 			{
 				cell.show();
-				this.minesweeperObserver.setScore(++this.score);
+				this.minesweeperObserver.updateCell(coordX, coordY, cell);
+				this.score++;
+				this.minesweeperObserver.setScore(this.score);
 			}
 		}
 	}
@@ -102,17 +119,25 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	private void discoverCellAndNeighborsFrom(int coordX, int coordY)
 	{
 		final Cell cell = this.boardGame[coordX][coordY];
-		if (cell.isHidden() && (cell.getCellType() == CellType.EMPTY))
+		if (cell.isHidden())
 		{
 			cell.show();
-			discoverCellAndNeighborsFrom(coordX - 1, coordY - 1);
-			discoverCellAndNeighborsFrom(coordX, coordY - 1);
-			discoverCellAndNeighborsFrom(coordX + 1, coordY - 1);
-			discoverCellAndNeighborsFrom(coordX + 1, coordY);
-			discoverCellAndNeighborsFrom(coordX + 1, coordY + 1);
-			discoverCellAndNeighborsFrom(coordX, coordY + 1);
-			discoverCellAndNeighborsFrom(coordX - 1, coordY + 1);
-			discoverCellAndNeighborsFrom(coordX - 1, coordY);
+			this.minesweeperObserver.updateCell(coordX, coordY, cell);
+
+			if (cell.getCellType() == CellType.EMPTY)
+			{
+				final int[] dx = new int[] { -1, 0, 1, 1, 1, 0, -1, -1 };
+				final int[] dy = new int[] { -1, -1, -1, 0, 1, 1, 1, 0 };
+				for (int offset = 0; offset < dx.length; offset++)
+				{
+					final int xTemp = coordX + dx[offset];
+					final int yTemp = coordY + dy[offset];
+					if ((xTemp >= 0) && (xTemp < this.size) && (yTemp >= 0) && (yTemp < this.size))
+					{
+						discoverCellAndNeighborsFrom(xTemp, yTemp);
+					}
+				}
+			}
 		}
 	}
 
