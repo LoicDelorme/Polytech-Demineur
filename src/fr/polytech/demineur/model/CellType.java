@@ -19,11 +19,6 @@ public enum CellType
 	MINE,
 
 	/**
-	 * The cell is a mine which has exploded.
-	 */
-	MINE_EXPLODED,
-
-	/**
 	 * The cell has a value of 1.
 	 */
 	ONE,
