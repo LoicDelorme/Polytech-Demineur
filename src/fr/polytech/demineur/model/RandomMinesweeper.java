@@ -15,13 +15,13 @@ public class RandomMinesweeper extends Minesweeper
 	/**
 	 * The default mines number.
 	 */
-	public static final int DEFAULT_MINES_NUMBER = 16;
+	public static final int DEFAULT_MINES_NUMBER = 2;
 
 	/**
 	 * Create a random Minesweeper.
 	 * 
 	 * @param size
-	 *            The size.
+	 *            The board game size.
 	 * @param minesweeperObserver
 	 *            The Minesweeper observer.
 	 */
@@ -39,39 +39,41 @@ public class RandomMinesweeper extends Minesweeper
 		final Random generator = new Random(System.currentTimeMillis());
 		do
 		{
-			final int x = generator.nextInt(DEFAULT_MINES_NUMBER);
-			final int y = generator.nextInt(DEFAULT_MINES_NUMBER);
+			final int x = generator.nextInt(this.size);
+			final int y = generator.nextInt(this.size);
 			if (this.boardGame[x][y].getCellType() != CellType.MINE)
 			{
 				this.boardGame[x][y].setCellType(CellType.MINE);
-				this.nbMinesToBeMarked++;
-				computeNeightbors(x, y);
+				computeMineNeightbors(x, y);
+				this.nbMines++;
 			}
-		} while (this.nbMinesToBeMarked != DEFAULT_MINES_NUMBER);
+		} while (this.nbMines != DEFAULT_MINES_NUMBER);
 	}
 
 	/**
-	 * Compute neightbors.
+	 * Compute mine's neightbors.
 	 * 
 	 * @param x
 	 *            The X coordinate.
 	 * @param y
 	 *            The Y coordinate.
 	 */
-	private void computeNeightbors(int x, int y)
+	private void computeMineNeightbors(int x, int y)
 	{
 		final int[] dx = new int[] { -1, 0, 1, 1, 1, 0, -1, -1 };
 		final int[] dy = new int[] { -1, -1, -1, 0, 1, 1, 1, 0 };
+		int xTemp;
+		int yTemp;
 		for (int offset = 0; offset < dx.length; offset++)
 		{
-			final int xTemp = x + dx[offset];
-			final int yTemp = y + dy[offset];
-			if ((xTemp >= 0) && (xTemp < this.size) && (yTemp >= 0) && (yTemp < this.size))
+			xTemp = x + dx[offset];
+			yTemp = y + dy[offset];
+			if (isInBound(xTemp, yTemp))
 			{
-				final CellType neightborsCellType = this.boardGame[xTemp][yTemp].getCellType();
-				if (neightborsCellType != CellType.MINE)
+				final CellType neightborCellType = this.boardGame[xTemp][yTemp].getCellType();
+				if (neightborCellType != CellType.MINE)
 				{
-					this.boardGame[xTemp][yTemp].setCellType(CellType.getCellTypeFromValue(CellType.getValueFromCellType(neightborsCellType) + 1));
+					this.boardGame[xTemp][yTemp].setCellType(CellType.getCellTypeFromValue(CellType.getValueFromCellType(neightborCellType) + 1));
 				}
 			}
 		}

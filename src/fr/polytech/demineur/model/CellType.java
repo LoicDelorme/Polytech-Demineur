@@ -11,7 +11,7 @@ public enum CellType
     /**
      * The cell is empty.
      */
-	EMPTY(""),
+	EMPTY("/fr/polytech/demineur/view/resources/empty.png"),
 
 	/**
 	 * The cell is a mine.

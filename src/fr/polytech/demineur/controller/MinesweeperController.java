@@ -4,22 +4,21 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import fr.polytech.demineur.model.Cell;
-import fr.polytech.demineur.model.CellType;
 import fr.polytech.demineur.model.IMinesweeperObservable;
 import fr.polytech.demineur.model.RandomMinesweeper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 /**
- * This class represents the Demineur controller.
+ * This class represents the Minesweeper controller.
  *
  * @author DELORME Loïc
  * @since 1.0.0
@@ -61,57 +60,28 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	private IMinesweeperObservable minesweeperObservable;
 
 	/**
-	 * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
-	 */
-	@Override
-	public void initialize(URL location, ResourceBundle resources)
-	{
-		this.nbMinesRemaining.setText(String.valueOf(0));
-		this.score.setText(String.valueOf(0));
-		this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this);
-
-		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
-		// this.faceButton.setOnAction(e ->
-		// {
-		// this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this);
-		// });
-
-		for (int x = 0; x < DEFAULT_MINESWEEPER_SIZE; x++)
-		{
-			for (int y = 0; y < DEFAULT_MINESWEEPER_SIZE; y++)
-			{
-				final int xTemp = x;
-				final int yTemp = y;
-
-				final Pane imagePane = new Pane();
-				imagePane.setOnMouseClicked(e ->
-				{
-					final MouseButton mouseButton = e.getButton();
-					if (mouseButton == MouseButton.PRIMARY)
-					{
-						this.minesweeperObservable.onLeftMouseClick(xTemp, yTemp);
-						return;
-					}
-
-					if (mouseButton == MouseButton.SECONDARY)
-					{
-						this.minesweeperObservable.onRightMouseClick(xTemp, yTemp);
-						return;
-					}
-				});
-
-				this.boardGame.add(imagePane, y, x);
-			}
-		}
-	}
-
-	/**
 	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#playerIsDead()
 	 */
 	@Override
 	public void playerIsDead()
 	{
+		disableAllButtons();
 		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/sad_smiley.png"));
+		this.faceButton.setDisable(false);
+	}
+
+	/**
+	 * Disable all buttons.
+	 */
+	private void disableAllButtons()
+	{
+		for (Node node : this.boardGame.getChildren())
+		{
+			if (node instanceof Button)
+			{
+				((Button) node).setDisable(true);
+			}
+		}
 	}
 
 	/**
@@ -120,7 +90,9 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void playerHasWon()
 	{
+		disableAllButtons();
 		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/sun_glasses_smiley.png"));
+		this.faceButton.setDisable(false);
 	}
 
 	/**
@@ -129,45 +101,39 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	@Override
 	public void updateCell(int coordX, int coordY, Cell cell)
 	{
-		if (cell.getCellType() != CellType.EMPTY)
+		Button buttonToUpdate = null;
+		for (Node node : this.boardGame.getChildren())
 		{
-			for (Node node : this.boardGame.getChildren())
+			if ((node instanceof Button) && (GridPane.getRowIndex(node) == coordX) && (GridPane.getColumnIndex(node) == coordY))
 			{
-				if ((node instanceof Pane) && (GridPane.getRowIndex(node) == coordX) && (GridPane.getColumnIndex(node) == coordY))
-				{
-					final Pane imagePane = (Pane) node;
+				buttonToUpdate = (Button) node;
+				break;
+			}
+		}
 
-					final ImageView imageView = new ImageView();
-					imageView.fitWidthProperty().bind(imagePane.widthProperty());
-					imageView.fitHeightProperty().bind(imagePane.heightProperty());
-
-					if (cell.isMarked())
-					{
-						imageView.setImage(new Image("/fr/polytech/demineur/view/resources/red_flag.png"));
-						imagePane.getChildren().add(imageView);
-					}
-					else
-					{
-						if (cell.isHidden())
-						{
-							imagePane.getChildren().clear();
-						}
-						else
-						{
-							imageView.setImage(new Image(cell.getCellType().getImagePath()));
-							imagePane.getChildren().add(imageView);
-						}
-					}
-				}
+		if (cell.isMarked())
+		{
+			buttonToUpdate.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/red_flag.png"));
+		}
+		else
+		{
+			if (cell.isHidden())
+			{
+				buttonToUpdate.setGraphic(null);
+			}
+			else
+			{
+				buttonToUpdate.setGraphic(new ImageView(cell.getCellType().getImagePath()));
+				buttonToUpdate.setDisable(true);
 			}
 		}
 	}
 
 	/**
-	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#setNbMinesRemaining(int)
+	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#setNbMines(int)
 	 */
 	@Override
-	public void setNbMinesRemaining(int nbMinesRemaining)
+	public void setNbMines(int nbMinesRemaining)
 	{
 		this.nbMinesRemaining.setText(String.valueOf(nbMinesRemaining));
 	}
@@ -179,5 +145,67 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	public void setScore(int score)
 	{
 		this.score.setText(String.valueOf(score));
+	}
+
+	/**
+	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#resetBoardGame()
+	 */
+	@Override
+	public void resetBoardGame()
+	{
+		this.nbMinesRemaining.setText(String.valueOf(0));
+		this.score.setText(String.valueOf(0));
+		this.boardGame.getChildren().remove(1, this.boardGame.getChildren().size());
+
+		for (int x = 0; x < DEFAULT_MINESWEEPER_SIZE; x++)
+		{
+			for (int y = 0; y < DEFAULT_MINESWEEPER_SIZE; y++)
+			{
+				final int xTemp = x;
+				final int yTemp = y;
+				final Button cellButton = new Button();
+				cellButton.setOnMouseClicked(e ->
+				{
+					final MouseButton mouseClickedButton = e.getButton();
+					if (mouseClickedButton == MouseButton.PRIMARY)
+					{
+						this.minesweeperObservable.onLeftMouseClick(xTemp, yTemp);
+						return;
+					}
+
+					if (mouseClickedButton == MouseButton.SECONDARY)
+					{
+						this.minesweeperObservable.onRightMouseClick(xTemp, yTemp);
+						return;
+					}
+				});
+
+				this.boardGame.add(cellButton, y, x);
+
+				GridPane.setValignment(cellButton, VPos.CENTER);
+				GridPane.setHalignment(cellButton, HPos.CENTER);
+			}
+		}
+	}
+
+	/**
+	 * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
+	 */
+	@Override
+	public void initialize(URL location, ResourceBundle resources)
+	{
+		this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this);
+
+		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
+		this.faceButton.setDisable(true);
+		this.faceButton.setOnAction(e ->
+		{
+			this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this);
+			resetBoardGame();
+			this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
+			this.faceButton.setDisable(true);
+		});
+
+		resetBoardGame();
 	}
 }

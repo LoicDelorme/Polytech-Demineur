@@ -86,14 +86,6 @@ public class Cell
 	}
 
 	/**
-	 * Hide the cell.
-	 */
-	public void hide()
-	{
-		this.isHidden = true;
-	}
-
-	/**
 	 * Mark the cell.
 	 */
 	public void mark()

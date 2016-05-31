@@ -38,7 +38,7 @@ public interface IMinesweeperObserver
 	 * @param nbMinesRemaining
 	 *            The number of mines remaining.
 	 */
-	public void setNbMinesRemaining(int nbMinesRemaining);
+	public void setNbMines(int nbMinesRemaining);
 
 	/**
 	 * Set the score.
@@ -47,4 +47,9 @@ public interface IMinesweeperObserver
 	 *            The score.
 	 */
 	public void setScore(int score);
+
+	/**
+	 * Reset the board game.
+	 */
+	public void resetBoardGame();
 }

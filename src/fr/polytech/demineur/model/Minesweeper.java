@@ -11,7 +11,7 @@ import fr.polytech.demineur.controller.IMinesweeperObserver;
 public abstract class Minesweeper implements IMinesweeperObservable
 {
 	/**
-	 * The size.
+	 * The board game size.
 	 */
 	protected final int size;
 
@@ -21,9 +21,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	protected final Cell[][] boardGame;
 
 	/**
-	 * The number of mines to be marked.
+	 * The number of mines.
 	 */
-	protected int nbMinesToBeMarked;
+	protected int nbMines;
 
 	/**
 	 * The score.
@@ -33,13 +33,13 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	/**
 	 * The Minesweeper observer.
 	 */
-	private final IMinesweeperObserver minesweeperObserver;
+	private final IMinesweeperObserver observer;
 
 	/**
 	 * Create a Minesweeper.
 	 * 
 	 * @param size
-	 *            The size.
+	 *            The board game size.
 	 * @param minesweeperObserver
 	 *            The Minesweeper observer.
 	 */
@@ -47,9 +47,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	{
 		this.size = size;
 		this.boardGame = new Cell[size][size];
-		this.nbMinesToBeMarked = 0;
+		this.nbMines = 0;
 		this.score = 0;
-		this.minesweeperObserver = minesweeperObserver;
+		this.observer = minesweeperObserver;
 
 		for (int x = 0; x < size; x++)
 		{
@@ -73,37 +73,41 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	@Override
 	public void onLeftMouseClick(int coordX, int coordY)
 	{
-		final Cell cell = this.boardGame[coordX][coordY];
-		if (cell.getCellType() == CellType.EMPTY)
+		final Cell selectedCell = this.boardGame[coordX][coordY];
+		if (selectedCell.isHidden())
 		{
-			discoverCellAndNeighborsFrom(coordX, coordY);
-		}
-		else
-		{
-			if (cell.getCellType() == CellType.MINE)
+			if (selectedCell.getCellType() == CellType.MINE)
 			{
-				Cell currentCell = null;
 				for (int x = 0; x < this.size; x++)
 				{
 					for (int y = 0; y < this.size; y++)
 					{
-						currentCell = this.boardGame[x][y];
-						if (currentCell.getCellType() == CellType.MINE)
+						if (this.boardGame[x][y].getCellType() == CellType.MINE)
 						{
-							currentCell.show();
-							this.minesweeperObserver.updateCell(x, y, currentCell);
+							this.boardGame[x][y].show();
+							this.observer.updateCell(x, y, this.boardGame[x][y]);
 						}
 					}
 				}
 
-				this.minesweeperObserver.playerIsDead();
+				this.observer.playerIsDead();
 			}
 			else
 			{
-				cell.show();
-				this.minesweeperObserver.updateCell(coordX, coordY, cell);
-				this.score++;
-				this.minesweeperObserver.setScore(this.score);
+				if (selectedCell.getCellType() == CellType.EMPTY)
+				{
+					discoverCellAndNeighborsFrom(coordX, coordY);
+					this.observer.setScore(this.score);
+				}
+				else
+				{
+					selectedCell.show();
+					this.score++;
+					this.observer.updateCell(coordX, coordY, selectedCell);
+					this.observer.setScore(this.score);
+				}
+
+				checkPossibleVictory();
 			}
 		}
 	}
@@ -122,21 +126,64 @@ public abstract class Minesweeper implements IMinesweeperObservable
 		if (cell.isHidden())
 		{
 			cell.show();
-			this.minesweeperObserver.updateCell(coordX, coordY, cell);
+			this.score++;
+			this.observer.updateCell(coordX, coordY, cell);
 
 			if (cell.getCellType() == CellType.EMPTY)
 			{
 				final int[] dx = new int[] { -1, 0, 1, 1, 1, 0, -1, -1 };
 				final int[] dy = new int[] { -1, -1, -1, 0, 1, 1, 1, 0 };
+				int xTemp;
+				int yTemp;
 				for (int offset = 0; offset < dx.length; offset++)
 				{
-					final int xTemp = coordX + dx[offset];
-					final int yTemp = coordY + dy[offset];
-					if ((xTemp >= 0) && (xTemp < this.size) && (yTemp >= 0) && (yTemp < this.size))
+					xTemp = coordX + dx[offset];
+					yTemp = coordY + dy[offset];
+					if (isInBound(xTemp, yTemp))
 					{
 						discoverCellAndNeighborsFrom(xTemp, yTemp);
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Check if a coordinate is on the board game.
+	 * 
+	 * @param x
+	 *            The X coordinate.
+	 * @param y
+	 *            The Y coordinate.
+	 * @return True or False.
+	 */
+	protected boolean isInBound(int x, int y)
+	{
+		return ((x >= 0) && (x < this.size) && (y >= 0) && (y < this.size));
+	}
+
+	/**
+	 * Check for a possible victory.
+	 */
+	private void checkPossibleVictory()
+	{
+		if (this.nbMines == 0)
+		{
+			int nbRemainingCell = 0;
+			for (int x = 0; x < this.size; x++)
+			{
+				for (int y = 0; y < this.size; y++)
+				{
+					if (this.boardGame[x][y].isHidden() && !this.boardGame[x][y].isMarked())
+					{
+						nbRemainingCell++;
+					}
+				}
+			}
+
+			if (nbRemainingCell == 0)
+			{
+				this.observer.playerHasWon();
 			}
 		}
 	}
@@ -147,22 +194,27 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	@Override
 	public void onRightMouseClick(int coordX, int coordY)
 	{
-		final Cell cell = this.boardGame[coordX][coordY];
-		if (cell.isHidden())
+		final Cell selectedCell = this.boardGame[coordX][coordY];
+		if (selectedCell.isHidden())
 		{
-			if (cell.isMarked())
+			if (selectedCell.isMarked())
 			{
-				cell.unmark();
-				this.nbMinesToBeMarked++;
+				selectedCell.unmark();
+				this.score--;
+				this.nbMines++;
 			}
 			else
 			{
-				cell.mark();
-				this.nbMinesToBeMarked--;
+				selectedCell.mark();
+				this.score++;
+				this.nbMines--;
 			}
 
-			this.minesweeperObserver.setNbMinesRemaining(this.nbMinesToBeMarked);
-			this.minesweeperObserver.updateCell(coordX, coordY, cell);
+			this.observer.setNbMines(this.nbMines);
+			this.observer.setScore(this.score);
+			this.observer.updateCell(coordX, coordY, selectedCell);
+
+			checkPossibleVictory();
 		}
 	}
 }
