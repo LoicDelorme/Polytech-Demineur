@@ -267,14 +267,19 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 			this.faceButton.fire();
 		});
 
+		this.close.setOnAction(e ->
+		{
+			System.exit(0);
+		});
+
 		this.currentDifficulty = Difficulty.EASY;
-		this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this.currentDifficulty, this);
+		this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, DEFAULT_MINESWEEPER_SIZE, this.currentDifficulty, this);
 
 		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
 		this.faceButton.setDisable(true);
 		this.faceButton.setOnAction(e ->
 		{
-			this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, this.currentDifficulty, this);
+			this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_SIZE, DEFAULT_MINESWEEPER_SIZE, this.currentDifficulty, this);
 			resetBoardGame();
 			this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
 			this.faceButton.setDisable(true);

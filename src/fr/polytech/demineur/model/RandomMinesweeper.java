@@ -15,16 +15,18 @@ public class RandomMinesweeper extends Minesweeper
 	/**
 	 * Create a random Minesweeper.
 	 * 
-	 * @param size
-	 *            The board game size.
+	 * @param width
+	 *            The board game width.
+	 * @param height
+	 *            The board game height.
 	 * @param difficulty
 	 *            The difficulty.
 	 * @param minesweeperObserver
 	 *            The Minesweeper observer.
 	 */
-	public RandomMinesweeper(int size, Difficulty difficulty, IMinesweeperObserver minesweeperObserver)
+	public RandomMinesweeper(int width, int height, Difficulty difficulty, IMinesweeperObserver minesweeperObserver)
 	{
-		super(size, difficulty, minesweeperObserver);
+		super(width, height, difficulty, minesweeperObserver);
 	}
 
 	/**
@@ -33,12 +35,12 @@ public class RandomMinesweeper extends Minesweeper
 	@Override
 	public void initializeBoardGame()
 	{
-		final double computedMinesNumber = Math.floor(this.size * this.size * this.difficulty.getPercentage());
+		final double computedMinesNumber = Math.floor(this.width * this.height * this.difficulty.getPercentage());
 		final Random generator = new Random(System.currentTimeMillis());
 		do
 		{
-			final int x = generator.nextInt(this.size);
-			final int y = generator.nextInt(this.size);
+			final int x = generator.nextInt(this.width);
+			final int y = generator.nextInt(this.height);
 			if (this.boardGame[x][y].getCellType() != CellType.MINE)
 			{
 				this.boardGame[x][y].setCellType(CellType.MINE);

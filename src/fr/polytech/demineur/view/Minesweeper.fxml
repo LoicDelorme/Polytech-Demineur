@@ -28,7 +28,7 @@
                <items>
                   <RadioMenuItem fx:id="easyDifficulty" mnemonicParsing="false" selected="true" text="Débutant">
                      <toggleGroup>
-                        <ToggleGroup fx:id="difficulty" />
+                        <ToggleGroup/>
                      </toggleGroup></RadioMenuItem>
                   <RadioMenuItem fx:id="mediumDifficulty" mnemonicParsing="false" text="Intermédiaire" toggleGroup="$difficulty" />
                   <RadioMenuItem fx:id="hardDifficulty" mnemonicParsing="false" text="Difficile" toggleGroup="$difficulty" />

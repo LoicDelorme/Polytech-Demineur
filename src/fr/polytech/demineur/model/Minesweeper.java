@@ -11,9 +11,14 @@ import fr.polytech.demineur.controller.IMinesweeperObserver;
 public abstract class Minesweeper implements IMinesweeperObservable
 {
 	/**
-	 * The board game size.
+	 * The board game width.
 	 */
-	protected final int size;
+	protected final int width;
+
+	/**
+	 * The board game height.
+	 */
+	protected final int height;
 
 	/**
 	 * The difficulty.
@@ -43,25 +48,28 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	/**
 	 * Create a Minesweeper.
 	 * 
-	 * @param size
-	 *            The board game size.
+	 * @param width
+	 *            The board game width.
+	 * @param height
+	 *            The board game height.
 	 * @param difficulty
 	 *            The difficulty.
 	 * @param minesweeperObserver
 	 *            The Minesweeper observer.
 	 */
-	public Minesweeper(int size, Difficulty difficulty, IMinesweeperObserver minesweeperObserver)
+	public Minesweeper(int width, int height, Difficulty difficulty, IMinesweeperObserver minesweeperObserver)
 	{
-		this.size = size;
+		this.width = width;
+		this.height = height;
 		this.difficulty = difficulty;
-		this.boardGame = new Cell[size][size];
+		this.boardGame = new Cell[width][height];
 		this.nbMines = 0;
 		this.score = 0;
 		this.observer = minesweeperObserver;
 
-		for (int x = 0; x < size; x++)
+		for (int x = 0; x < width; x++)
 		{
-			for (int y = 0; y < size; y++)
+			for (int y = 0; y < height; y++)
 			{
 				this.boardGame[x][y] = new Cell(CellType.EMPTY);
 			}
@@ -86,9 +94,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 		{
 			if (selectedCell.getCellType() == CellType.MINE)
 			{
-				for (int x = 0; x < this.size; x++)
+				for (int x = 0; x < this.width; x++)
 				{
-					for (int y = 0; y < this.size; y++)
+					for (int y = 0; y < this.height; y++)
 					{
 						if (this.boardGame[x][y].getCellType() == CellType.MINE)
 						{
@@ -167,7 +175,7 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	 */
 	protected boolean isInBound(int x, int y)
 	{
-		return ((x >= 0) && (x < this.size) && (y >= 0) && (y < this.size));
+		return ((x >= 0) && (x < this.width) && (y >= 0) && (y < this.height));
 	}
 
 	/**
@@ -178,9 +186,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 		if (this.nbMines == 0)
 		{
 			int nbRemainingCell = 0;
-			for (int x = 0; x < this.size; x++)
+			for (int x = 0; x < this.width; x++)
 			{
-				for (int y = 0; y < this.size; y++)
+				for (int y = 0; y < this.height; y++)
 				{
 					if (this.boardGame[x][y].isHidden() && !this.boardGame[x][y].isMarked())
 					{
