@@ -6,12 +6,12 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
@@ -21,12 +21,23 @@
         <menus>
           <Menu mnemonicParsing="false" text="Partie">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
+              <MenuItem fx:id="close" mnemonicParsing="false" text="Fermer" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Difficulté">
+               <items>
+                  <RadioMenuItem fx:id="easyDifficulty" mnemonicParsing="false" selected="true" text="Débutant">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="difficulty" />
+                     </toggleGroup></RadioMenuItem>
+                  <RadioMenuItem fx:id="mediumDifficulty" mnemonicParsing="false" text="Intermédiaire" toggleGroup="$difficulty" />
+                  <RadioMenuItem fx:id="hardDifficulty" mnemonicParsing="false" text="Difficile" toggleGroup="$difficulty" />
+                  <RadioMenuItem fx:id="hardcoreDifficulty" mnemonicParsing="false" text="Hardcore" toggleGroup="$difficulty" />
+               </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="?">
             <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+              <MenuItem fx:id="about" mnemonicParsing="false" text="A propos" />
             </items>
           </Menu>
         </menus>
@@ -47,43 +58,7 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </HBox>
-            <GridPane fx:id="boardGame" alignment="CENTER" gridLinesVisible="true" maxHeight="512.0" maxWidth="512.0" minHeight="512.0" minWidth="512.0" prefHeight="512.0" prefWidth="512.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="16.0" prefWidth="16.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-                <RowConstraints minHeight="16.0" prefHeight="16.0" vgrow="ALWAYS" />
-              </rowConstraints>
+            <GridPane fx:id="boardGame" alignment="CENTER" gridLinesVisible="true">
             </GridPane>
          </children>
       </VBox>

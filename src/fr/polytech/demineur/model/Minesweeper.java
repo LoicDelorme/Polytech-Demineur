@@ -16,6 +16,11 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	protected final int size;
 
 	/**
+	 * The difficulty.
+	 */
+	protected final Difficulty difficulty;
+
+	/**
 	 * The board game.
 	 */
 	protected final Cell[][] boardGame;
@@ -40,12 +45,15 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	 * 
 	 * @param size
 	 *            The board game size.
+	 * @param difficulty
+	 *            The difficulty.
 	 * @param minesweeperObserver
 	 *            The Minesweeper observer.
 	 */
-	public Minesweeper(int size, IMinesweeperObserver minesweeperObserver)
+	public Minesweeper(int size, Difficulty difficulty, IMinesweeperObserver minesweeperObserver)
 	{
 		this.size = size;
+		this.difficulty = difficulty;
 		this.boardGame = new Cell[size][size];
 		this.nbMines = 0;
 		this.score = 0;

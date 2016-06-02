@@ -13,21 +13,18 @@ import fr.polytech.demineur.controller.IMinesweeperObserver;
 public class RandomMinesweeper extends Minesweeper
 {
 	/**
-	 * The default mines number.
-	 */
-	public static final int DEFAULT_MINES_NUMBER = 2;
-
-	/**
 	 * Create a random Minesweeper.
 	 * 
 	 * @param size
 	 *            The board game size.
+	 * @param difficulty
+	 *            The difficulty.
 	 * @param minesweeperObserver
 	 *            The Minesweeper observer.
 	 */
-	public RandomMinesweeper(int size, IMinesweeperObserver minesweeperObserver)
+	public RandomMinesweeper(int size, Difficulty difficulty, IMinesweeperObserver minesweeperObserver)
 	{
-		super(size, minesweeperObserver);
+		super(size, difficulty, minesweeperObserver);
 	}
 
 	/**
@@ -36,6 +33,7 @@ public class RandomMinesweeper extends Minesweeper
 	@Override
 	public void initializeBoardGame()
 	{
+		final double computedMinesNumber = Math.floor(this.size * this.size * this.difficulty.getPercentage());
 		final Random generator = new Random(System.currentTimeMillis());
 		do
 		{
@@ -47,7 +45,7 @@ public class RandomMinesweeper extends Minesweeper
 				computeMineNeightbors(x, y);
 				this.nbMines++;
 			}
-		} while (this.nbMines != DEFAULT_MINES_NUMBER);
+		} while (this.nbMines != computedMinesNumber);
 	}
 
 	/**
