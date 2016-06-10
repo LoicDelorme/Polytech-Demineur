@@ -15,6 +15,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -37,12 +39,12 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	/**
 	 * The default Minesweeper width.
 	 */
-	public static final int DEFAULT_MINESWEEPER_WIDTH = 16;
+	public static final int DEFAULT_MINESWEEPER_WIDTH = 24;
 
 	/**
 	 * The default Minesweeper height.
 	 */
-	public static final int DEFAULT_MINESWEEPER_HEIGHT = 16;
+	public static final int DEFAULT_MINESWEEPER_HEIGHT = 24;
 
 	/**
 	 * The number of mines remaining.
@@ -129,6 +131,11 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	 * The stop watch.
 	 */
 	private StopWatch stopWatch;
+
+	/**
+	 * The timer thread.
+	 */
+	private Thread timerThread;
 
 	/**
 	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#playerIsDead()
@@ -317,7 +324,18 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 
 		this.close.setOnAction(e ->
 		{
+			Thread.interrupted();
 			System.exit(0);
+		});
+
+		this.about.setOnAction(e ->
+		{
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setHeaderText(null);
+			alert.setTitle("Informations");
+			alert.setContentText("Cette application représente le célèbre jeu du Démineur.\n\nElle a été développée en utilisant un pattern MVC et la nouvelle librairie graphique JavaFX.");
+
+			alert.showAndWait();
 		});
 
 		this.currentDifficulty = Difficulty.EASY;
@@ -338,17 +356,17 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 
 		for (int offset = 0; offset < DEFAULT_MINESWEEPER_WIDTH; offset++)
 		{
-			this.boardGame.getColumnConstraints().add(new ColumnConstraints(32, 32, 32, Priority.ALWAYS, HPos.CENTER, true));
+			this.boardGame.getRowConstraints().add(new RowConstraints(32, 32, 32, Priority.ALWAYS, VPos.CENTER, true));
 		}
 
 		for (int offset = 0; offset < DEFAULT_MINESWEEPER_HEIGHT; offset++)
 		{
-			this.boardGame.getRowConstraints().add(new RowConstraints(32, 32, 32, Priority.ALWAYS, VPos.CENTER, true));
+			this.boardGame.getColumnConstraints().add(new ColumnConstraints(32, 32, 32, Priority.ALWAYS, HPos.CENTER, true));
 		}
 
 		resetBoardGame();
 
-		Thread timerThread = new Thread(() ->
+		this.timerThread = new Thread(() ->
 		{
 			try
 			{
@@ -363,6 +381,6 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 				e1.printStackTrace();
 			}
 		});
-		timerThread.start();
+		this.timerThread.start();
 	}
 }

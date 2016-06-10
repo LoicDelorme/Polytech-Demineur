@@ -44,8 +44,8 @@ public class RandomMinesweeper extends Minesweeper
 			if (this.boardGame[x][y].getCellType() != CellType.MINE)
 			{
 				this.boardGame[x][y].setCellType(CellType.MINE);
-				computeMineNeightbors(x, y);
 				this.nbMines++;
+				computeMineNeightbors(x, y);
 			}
 		} while (this.nbMines != computedMinesNumber);
 	}
