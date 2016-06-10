@@ -28,7 +28,7 @@
                <items>
                   <RadioMenuItem fx:id="easyDifficulty" mnemonicParsing="false" selected="true" text="Débutant">
                      <toggleGroup>
-                        <ToggleGroup/>
+                        <ToggleGroup fx:id="difficulty" />
                      </toggleGroup></RadioMenuItem>
                   <RadioMenuItem fx:id="mediumDifficulty" mnemonicParsing="false" text="Intermédiaire" toggleGroup="$difficulty" />
                   <RadioMenuItem fx:id="hardDifficulty" mnemonicParsing="false" text="Difficile" toggleGroup="$difficulty" />
@@ -50,7 +50,12 @@
                <children>
                   <Text fx:id="nbMinesRemaining" strokeType="OUTSIDE" strokeWidth="0.0" />
                   <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="faceButton" mnemonicParsing="false" />
+                  <VBox alignment="CENTER" spacing="10.0">
+                     <children>
+                        <Button fx:id="faceButton" mnemonicParsing="false" />
+                        <Text fx:id="timer" strokeType="OUTSIDE" strokeWidth="0.0" />
+                     </children>
+                  </VBox>
                   <Region HBox.hgrow="ALWAYS" />
                   <Text fx:id="score" strokeType="OUTSIDE" strokeWidth="0.0" />
                </children>

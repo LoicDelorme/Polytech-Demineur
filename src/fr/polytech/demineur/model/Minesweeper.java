@@ -1,6 +1,7 @@
 package fr.polytech.demineur.model;
 
 import fr.polytech.demineur.controller.IMinesweeperObserver;
+import javafx.application.Platform;
 
 /**
  * This class represents a Minesweeper.
@@ -100,27 +101,32 @@ public abstract class Minesweeper implements IMinesweeperObservable
 					{
 						if (this.boardGame[x][y].getCellType() == CellType.MINE)
 						{
+							final int xTemp = x;
+							final int yTemp = y;
 							this.boardGame[x][y].show();
-							this.observer.updateCell(x, y, this.boardGame[x][y]);
+							Platform.runLater(() -> this.observer.updateCell(xTemp, yTemp, this.boardGame[xTemp][yTemp]));
 						}
 					}
 				}
 
-				this.observer.playerIsDead();
+				Platform.runLater(() -> this.observer.playerIsDead());
 			}
 			else
 			{
 				if (selectedCell.getCellType() == CellType.EMPTY)
 				{
 					discoverCellAndNeighborsFrom(coordX, coordY);
-					this.observer.setScore(this.score);
+					Platform.runLater(() -> this.observer.setScore(this.score));
 				}
 				else
 				{
 					selectedCell.show();
 					this.score++;
-					this.observer.updateCell(coordX, coordY, selectedCell);
-					this.observer.setScore(this.score);
+					Platform.runLater(() ->
+					{
+						this.observer.updateCell(coordX, coordY, selectedCell);
+						this.observer.setScore(this.score);
+					});
 				}
 
 				checkPossibleVictory();
@@ -143,7 +149,7 @@ public abstract class Minesweeper implements IMinesweeperObservable
 		{
 			cell.show();
 			this.score++;
-			this.observer.updateCell(coordX, coordY, cell);
+			Platform.runLater(() -> this.observer.updateCell(coordX, coordY, cell));
 
 			if (cell.getCellType() == CellType.EMPTY)
 			{
@@ -199,7 +205,7 @@ public abstract class Minesweeper implements IMinesweeperObservable
 
 			if (nbRemainingCell == 0)
 			{
-				this.observer.playerHasWon();
+				Platform.runLater(() -> this.observer.playerHasWon());
 			}
 		}
 	}
@@ -226,11 +232,23 @@ public abstract class Minesweeper implements IMinesweeperObservable
 				this.nbMines--;
 			}
 
-			this.observer.setNbMines(this.nbMines);
-			this.observer.setScore(this.score);
-			this.observer.updateCell(coordX, coordY, selectedCell);
+			Platform.runLater(() ->
+			{
+				this.observer.setNbMines(this.nbMines);
+				this.observer.setScore(this.score);
+				this.observer.updateCell(coordX, coordY, selectedCell);
+			});
 
 			checkPossibleVictory();
 		}
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.IMinesweeperObservable#getNbMines()
+	 */
+	@Override
+	public int getNbMines()
+	{
+		return this.nbMines;
 	}
 }

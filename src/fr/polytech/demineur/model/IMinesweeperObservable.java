@@ -27,4 +27,11 @@ public interface IMinesweeperObservable
 	 *            The Y coordinate.
 	 */
 	public void onRightMouseClick(int coordX, int coordY);
+
+	/**
+	 * Get the number of mines.
+	 * 
+	 * @return The number of mines.
+	 */
+	public int getNbMines();
 }
