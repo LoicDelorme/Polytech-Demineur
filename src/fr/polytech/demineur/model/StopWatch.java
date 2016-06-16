@@ -1,4 +1,4 @@
-package fr.polytech.demineur.controller;
+package fr.polytech.demineur.model;
 
 /**
  * This class represents a stop watch.

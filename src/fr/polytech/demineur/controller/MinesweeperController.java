@@ -27,6 +27,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 /**
  * This class represents the Minesweeper controller.
@@ -128,14 +129,19 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	private ExecutorService executorService;
 
 	/**
-	 * The stop watch.
+	 * Set the primary stage.
+	 * 
+	 * @param primaryStage
+	 *            The primary stage.
 	 */
-	private StopWatch stopWatch;
-
-	/**
-	 * The timer thread.
-	 */
-	private Thread timerThread;
+	public void setPrimaryStage(Stage primaryStage)
+	{
+		primaryStage.setOnCloseRequest(e ->
+		{
+			this.minesweeperObservable.stopTimer();
+			System.exit(0);
+		});
+	}
 
 	/**
 	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#playerIsDead()
@@ -144,7 +150,7 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	public void playerIsDead()
 	{
 		disableAllButtons();
-		this.stopWatch.stop();
+		this.minesweeperObservable.stopTimer();
 		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/sad_smiley.png"));
 		this.faceButton.setDisable(false);
 	}
@@ -170,17 +176,20 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	public void playerHasWon()
 	{
 		disableAllButtons();
-		this.stopWatch.stop();
+		this.minesweeperObservable.stopTimer();
 		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/sun_glasses_smiley.png"));
 		this.faceButton.setDisable(false);
 	}
 
 	/**
-	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#updateCell(int, int, fr.polytech.demineur.model.Cell)
+	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#updateCell(fr.polytech.demineur.model.Cell)
 	 */
 	@Override
-	public void updateCell(int coordX, int coordY, Cell cell)
+	public void updateCell(Cell cell)
 	{
+		final int coordX = cell.getX();
+		final int coordY = cell.getY();
+
 		Button buttonToUpdate = null;
 		for (Node node : this.boardGame.getChildren())
 		{
@@ -228,13 +237,13 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 	}
 
 	/**
-	 * Update the timer.
+	 * @see fr.polytech.demineur.controller.IMinesweeperObserver#setTime(long)
 	 */
-	private void updateTimer()
+	@Override
+	public void setTime(long time)
 	{
-		final long elapsedTimeSecs = this.stopWatch.getElapsedTimeSecs();
-		final int nbMinutes = (int) (elapsedTimeSecs / 60);
-		final int nbSeconds = (int) (elapsedTimeSecs % 60);
+		final int nbMinutes = (int) (time / 60);
+		final int nbSeconds = (int) (time % 60);
 
 		final StringBuilder timerRepresentation = new StringBuilder();
 		timerRepresentation.append(nbMinutes > 9 ? nbMinutes : "0" + nbMinutes);
@@ -264,21 +273,18 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 				final Button cellButton = new Button(null, new ImageView(CellType.EMPTY.getImagePath()));
 				cellButton.setOnMouseClicked(e ->
 				{
-					if (!this.stopWatch.isRunning())
-					{
-						this.stopWatch.start();
-					}
+					this.minesweeperObservable.startTimer();
 
 					final MouseButton mouseClickedButton = e.getButton();
 					if (mouseClickedButton == MouseButton.PRIMARY)
 					{
-						this.executorService.execute(() -> this.minesweeperObservable.onLeftMouseClick(xTemp, yTemp));
+						this.executorService.execute(() -> this.minesweeperObservable.onLeftMouseClicked(xTemp, yTemp));
 						return;
 					}
 
 					if (mouseClickedButton == MouseButton.SECONDARY)
 					{
-						this.executorService.execute(() -> this.minesweeperObservable.onRightMouseClick(xTemp, yTemp));
+						this.executorService.execute(() -> this.minesweeperObservable.onRightMouseClicked(xTemp, yTemp));
 						return;
 					}
 				});
@@ -324,7 +330,7 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 
 		this.close.setOnAction(e ->
 		{
-			Thread.interrupted();
+			this.minesweeperObservable.stopTimer();
 			System.exit(0);
 		});
 
@@ -341,14 +347,12 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 		this.currentDifficulty = Difficulty.EASY;
 		this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_WIDTH, DEFAULT_MINESWEEPER_HEIGHT, this.currentDifficulty, this);
 		this.executorService = Executors.newFixedThreadPool(5);
-		this.stopWatch = new StopWatch();
 
 		this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
 		this.faceButton.setDisable(true);
 		this.faceButton.setOnAction(e ->
 		{
 			this.minesweeperObservable = new RandomMinesweeper(DEFAULT_MINESWEEPER_WIDTH, DEFAULT_MINESWEEPER_HEIGHT, this.currentDifficulty, this);
-			this.stopWatch = new StopWatch();
 			resetBoardGame();
 			this.faceButton.setGraphic(new ImageView("/fr/polytech/demineur/view/resources/happy_smiley.png"));
 			this.faceButton.setDisable(true);
@@ -365,22 +369,5 @@ public class MinesweeperController implements Initializable, IMinesweeperObserve
 		}
 
 		resetBoardGame();
-
-		this.timerThread = new Thread(() ->
-		{
-			try
-			{
-				while (true)
-				{
-					Thread.sleep(100);
-					updateTimer();
-				}
-			}
-			catch (Exception e1)
-			{
-				e1.printStackTrace();
-			}
-		});
-		this.timerThread.start();
 	}
 }

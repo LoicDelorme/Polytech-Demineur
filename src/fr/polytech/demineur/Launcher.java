@@ -1,5 +1,6 @@
 package fr.polytech.demineur;
 
+import fr.polytech.demineur.controller.MinesweeperController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,8 +20,12 @@ public class Launcher extends Application
 	{
 		try
 		{
-			final BorderPane root = (BorderPane) FXMLLoader.load(this.getClass().getResource("/fr/polytech/demineur/view/Minesweeper.fxml"));
+			final FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/fr/polytech/demineur/view/Minesweeper.fxml"));
+			final BorderPane root = (BorderPane) fxmlLoader.load();
 			final Scene scene = new Scene(root);
+
+			final MinesweeperController controller = fxmlLoader.getController();
+			controller.setPrimaryStage(primaryStage);
 
 			primaryStage.setScene(scene);
 			primaryStage.setResizable(false);

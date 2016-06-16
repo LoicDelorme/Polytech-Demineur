@@ -23,14 +23,10 @@ public interface IMinesweeperObserver
 	/**
 	 * Notify update a cell.
 	 * 
-	 * @param coordX
-	 *            The X coordinate.
-	 * @param coordY
-	 *            The Y coordinate.
 	 * @param cell
 	 *            The cell to update.
 	 */
-	public void updateCell(int coordX, int coordY, Cell cell);
+	public void updateCell(Cell cell);
 
 	/**
 	 * Set the number of mines remaining.
@@ -47,6 +43,14 @@ public interface IMinesweeperObserver
 	 *            The score.
 	 */
 	public void setScore(int score);
+
+	/**
+	 * Set the time.
+	 * 
+	 * @param time
+	 *            The elapsed time.
+	 */
+	public void setTime(long time);
 
 	/**
 	 * Reset the board game.

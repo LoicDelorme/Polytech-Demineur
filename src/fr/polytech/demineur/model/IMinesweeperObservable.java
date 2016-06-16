@@ -9,24 +9,34 @@ package fr.polytech.demineur.model;
 public interface IMinesweeperObservable
 {
 	/**
-	 * The on left mouse click.
+	 * The on left mouse clicked.
 	 * 
 	 * @param coordX
 	 *            The X coordinate.
 	 * @param coordY
 	 *            The Y coordinate.
 	 */
-	public void onLeftMouseClick(int coordX, int coordY);
+	public void onLeftMouseClicked(int coordX, int coordY);
 
 	/**
-	 * The on right mouse click.
+	 * The on right mouse clicked.
 	 * 
 	 * @param coordX
 	 *            The X coordinate.
 	 * @param coordY
 	 *            The Y coordinate.
 	 */
-	public void onRightMouseClick(int coordX, int coordY);
+	public void onRightMouseClicked(int coordX, int coordY);
+
+	/**
+	 * Start the timer.
+	 */
+	public void startTimer();
+
+	/**
+	 * Stop the timer.
+	 */
+	public void stopTimer();
 
 	/**
 	 * Get the number of mines.

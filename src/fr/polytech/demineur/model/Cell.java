@@ -1,5 +1,11 @@
 package fr.polytech.demineur.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import fr.polytech.demineur.controller.IMinesweeperObserver;
+import javafx.application.Platform;
+
 /**
  * This class represents a cell.
  *
@@ -8,6 +14,16 @@ package fr.polytech.demineur.model;
  */
 public class Cell
 {
+	/**
+	 * The X coordinate.
+	 */
+	private final int x;
+
+	/**
+	 * The Y coordinate.
+	 */
+	private final int y;
+
 	/**
 	 * The cell type.
 	 */
@@ -24,16 +40,64 @@ public class Cell
 	private boolean isMarked;
 
 	/**
+	 * The neighbors.
+	 */
+	private final List<Cell> neightbors;
+
+	/**
+	 * The cell observer.
+	 */
+	private final ICellObserver cellObserver;
+
+	/**
+	 * The Minesweeper observer.
+	 */
+	private final IMinesweeperObserver minesweeperObserver;
+
+	/**
 	 * Create a cell.
 	 * 
+	 * @param x
+	 *            The X coordinate.
+	 * @param y
+	 *            The Y coordinate.
 	 * @param cellType
 	 *            The cell type.
+	 * @param cellObserver
+	 *            The cell observer.
+	 * @param minesweeperObserver
+	 *            The Minesweeper observer.
 	 */
-	public Cell(CellType cellType)
+	public Cell(int x, int y, CellType cellType, ICellObserver cellObserver, IMinesweeperObserver minesweeperObserver)
 	{
+		this.x = x;
+		this.y = y;
 		this.cellType = cellType;
+		this.cellObserver = cellObserver;
+		this.minesweeperObserver = minesweeperObserver;
 		this.isHidden = true;
 		this.isMarked = false;
+		this.neightbors = new ArrayList<Cell>();
+	}
+
+	/**
+	 * Get the X coordinate.
+	 * 
+	 * @return The X coordinate.
+	 */
+	public int getX()
+	{
+		return this.x;
+	}
+
+	/**
+	 * Get the Y coordinate.
+	 * 
+	 * @return The Y coordinate.
+	 */
+	public int getY()
+	{
+		return this.y;
 	}
 
 	/**
@@ -58,6 +122,14 @@ public class Cell
 	}
 
 	/**
+	 * Show the cell.
+	 */
+	public void show()
+	{
+		this.isHidden = false;
+	}
+
+	/**
 	 * Check if the cell is hidden.
 	 * 
 	 * @return True or False.
@@ -78,26 +150,88 @@ public class Cell
 	}
 
 	/**
-	 * Show the cell.
+	 * Add a neightbor.
+	 * 
+	 * @param cell
+	 *            A neightbor.
 	 */
-	public void show()
+	public void addNeightbor(Cell cell)
 	{
-		this.isHidden = false;
+		this.neightbors.add(cell);
 	}
 
 	/**
-	 * Mark the cell.
+	 * Notify that the cell has been left clicked.
 	 */
-	public void mark()
+	public void notifyHasBeenLeftClicked()
 	{
-		this.isMarked = true;
+		if (this.isHidden)
+		{
+			if (this.cellType == CellType.MINE)
+			{
+				this.cellObserver.displayAllMines();
+			}
+			else
+			{
+				if (this.cellType == CellType.EMPTY)
+				{
+					discoverCellAndNeightbors();
+				}
+				else
+				{
+					this.isHidden = false;
+					this.cellObserver.incrementScore();
+					Platform.runLater(() -> this.minesweeperObserver.updateCell(this));
+				}
+
+				this.cellObserver.checkVictory();
+			}
+		}
 	}
 
 	/**
-	 * Unmark the cell.
+	 * Discover cell and neightbors.
 	 */
-	public void unmark()
+	private void discoverCellAndNeightbors()
 	{
-		this.isMarked = false;
+		if (this.isHidden)
+		{
+			this.isHidden = false;
+			this.cellObserver.incrementScore();
+			Platform.runLater(() -> this.minesweeperObserver.updateCell(this));
+
+			if (this.cellType == CellType.EMPTY)
+			{
+				for (Cell neightbor : this.neightbors)
+				{
+					neightbor.discoverCellAndNeightbors();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Notify that the cell has been right clicked.
+	 */
+	public void notifyHasBeenRightClicked()
+	{
+		if (this.isHidden)
+		{
+			if (this.isMarked)
+			{
+				this.isMarked = false;
+				this.cellObserver.decrementScore();
+				this.cellObserver.incrementNbMines();
+			}
+			else
+			{
+				this.isMarked = true;
+				this.cellObserver.incrementScore();
+				this.cellObserver.decrementNbMines();
+			}
+
+			Platform.runLater(() -> this.minesweeperObserver.updateCell(this));
+			this.cellObserver.checkVictory();
+		}
 	}
 }

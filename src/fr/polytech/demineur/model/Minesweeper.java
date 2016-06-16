@@ -9,7 +9,7 @@ import javafx.application.Platform;
  * @author DELORME Loïc
  * @since 1.0.0
  */
-public abstract class Minesweeper implements IMinesweeperObservable
+public abstract class Minesweeper implements IMinesweeperObservable, ICellObserver
 {
 	/**
 	 * The board game width.
@@ -27,6 +27,11 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	protected final Difficulty difficulty;
 
 	/**
+	 * The Minesweeper observer.
+	 */
+	protected final IMinesweeperObserver observer;
+
+	/**
 	 * The board game.
 	 */
 	protected final Cell[][] boardGame;
@@ -42,9 +47,9 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	private int score;
 
 	/**
-	 * The Minesweeper observer.
+	 * The timer thread.
 	 */
-	private final IMinesweeperObserver observer;
+	private Thread timerThread;
 
 	/**
 	 * Create a Minesweeper.
@@ -63,18 +68,11 @@ public abstract class Minesweeper implements IMinesweeperObservable
 		this.width = width;
 		this.height = height;
 		this.difficulty = difficulty;
+		this.observer = minesweeperObserver;
 		this.boardGame = new Cell[width][height];
 		this.nbMines = 0;
 		this.score = 0;
-		this.observer = minesweeperObserver;
-
-		for (int x = 0; x < width; x++)
-		{
-			for (int y = 0; y < height; y++)
-			{
-				this.boardGame[x][y] = new Cell(CellType.EMPTY);
-			}
-		}
+		this.timerThread = null;
 
 		initializeBoardGame();
 	}
@@ -85,125 +83,88 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	public abstract void initializeBoardGame();
 
 	/**
-	 * @see fr.polytech.demineur.model.IMinesweeperObservable#onLeftMouseClick(int, int)
+	 * @see fr.polytech.demineur.model.ICellObserver#incrementScore()
 	 */
 	@Override
-	public void onLeftMouseClick(int coordX, int coordY)
+	public void incrementScore()
 	{
-		final Cell selectedCell = this.boardGame[coordX][coordY];
-		if (selectedCell.isHidden())
-		{
-			if (selectedCell.getCellType() == CellType.MINE)
-			{
-				for (int x = 0; x < this.width; x++)
-				{
-					for (int y = 0; y < this.height; y++)
-					{
-						if (this.boardGame[x][y].getCellType() == CellType.MINE)
-						{
-							final int xTemp = x;
-							final int yTemp = y;
-							this.boardGame[x][y].show();
-							Platform.runLater(() -> this.observer.updateCell(xTemp, yTemp, this.boardGame[xTemp][yTemp]));
-						}
-					}
-				}
-
-				Platform.runLater(() -> this.observer.playerIsDead());
-			}
-			else
-			{
-				if (selectedCell.getCellType() == CellType.EMPTY)
-				{
-					discoverCellAndNeighborsFrom(coordX, coordY);
-					Platform.runLater(() -> this.observer.setScore(this.score));
-				}
-				else
-				{
-					selectedCell.show();
-					this.score++;
-					Platform.runLater(() ->
-					{
-						this.observer.updateCell(coordX, coordY, selectedCell);
-						this.observer.setScore(this.score);
-					});
-				}
-
-				checkPossibleVictory();
-			}
-		}
+		updateScore(1);
+		Platform.runLater(() -> this.observer.setScore(this.score));
 	}
 
 	/**
-	 * Discover the current cell and its neighbors.
+	 * Update the score.
 	 * 
-	 * @param coordX
-	 *            The X coordinate.
-	 * @param coordY
-	 *            The Y coordinate.
+	 * @param value
+	 *            The value to add.
 	 */
-	private void discoverCellAndNeighborsFrom(int coordX, int coordY)
+	private void updateScore(int value)
 	{
-		final Cell cell = this.boardGame[coordX][coordY];
-		if (cell.isHidden())
-		{
-			cell.show();
-			this.score++;
-			Platform.runLater(() -> this.observer.updateCell(coordX, coordY, cell));
-
-			if (cell.getCellType() == CellType.EMPTY)
-			{
-				final int[] dx = new int[] { -1, 0, 1, 1, 1, 0, -1, -1 };
-				final int[] dy = new int[] { -1, -1, -1, 0, 1, 1, 1, 0 };
-				int xTemp;
-				int yTemp;
-				for (int offset = 0; offset < dx.length; offset++)
-				{
-					xTemp = coordX + dx[offset];
-					yTemp = coordY + dy[offset];
-					if (isInBound(xTemp, yTemp))
-					{
-						discoverCellAndNeighborsFrom(xTemp, yTemp);
-					}
-				}
-			}
-		}
+		this.score += value;
 	}
 
 	/**
-	 * Check if a coordinate is on the board game.
+	 * @see fr.polytech.demineur.model.ICellObserver#decrementScore()
+	 */
+	@Override
+	public void decrementScore()
+	{
+		updateScore(-1);
+		Platform.runLater(() -> this.observer.setScore(this.score));
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.ICellObserver#incrementNbMines()
+	 */
+	@Override
+	public void incrementNbMines()
+	{
+		updateNbMines(1);
+		Platform.runLater(() -> this.observer.setNbMines(this.nbMines));
+	}
+
+	/**
+	 * Update the number of mines.
 	 * 
-	 * @param x
-	 *            The X coordinate.
-	 * @param y
-	 *            The Y coordinate.
-	 * @return True or False.
+	 * @param value
+	 *            The value to add.
 	 */
-	protected boolean isInBound(int x, int y)
+	private void updateNbMines(int value)
 	{
-		return ((x >= 0) && (x < this.width) && (y >= 0) && (y < this.height));
+		this.nbMines += value;
 	}
 
 	/**
-	 * Check for a possible victory.
+	 * @see fr.polytech.demineur.model.ICellObserver#decrementNbMines()
 	 */
-	private void checkPossibleVictory()
+	@Override
+	public void decrementNbMines()
+	{
+		updateNbMines(-1);
+		Platform.runLater(() -> this.observer.setNbMines(this.nbMines));
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.ICellObserver#checkVictory()
+	 */
+	@Override
+	public void checkVictory()
 	{
 		if (this.nbMines == 0)
 		{
-			int nbRemainingCell = 0;
+			int nbRemainingCellToShow = 0;
 			for (int x = 0; x < this.width; x++)
 			{
 				for (int y = 0; y < this.height; y++)
 				{
 					if (this.boardGame[x][y].isHidden() && !this.boardGame[x][y].isMarked())
 					{
-						nbRemainingCell++;
+						nbRemainingCellToShow++;
 					}
 				}
 			}
 
-			if (nbRemainingCell == 0)
+			if (nbRemainingCellToShow == 0)
 			{
 				Platform.runLater(() -> this.observer.playerHasWon());
 			}
@@ -211,35 +172,86 @@ public abstract class Minesweeper implements IMinesweeperObservable
 	}
 
 	/**
-	 * @see fr.polytech.demineur.model.IMinesweeperObservable#onRightMouseClick(int, int)
+	 * @see fr.polytech.demineur.model.ICellObserver#displayAllMines()
 	 */
 	@Override
-	public void onRightMouseClick(int coordX, int coordY)
+	public void displayAllMines()
 	{
-		final Cell selectedCell = this.boardGame[coordX][coordY];
-		if (selectedCell.isHidden())
+		for (int x = 0; x < this.width; x++)
 		{
-			if (selectedCell.isMarked())
+			for (int y = 0; y < this.height; y++)
 			{
-				selectedCell.unmark();
-				this.score--;
-				this.nbMines++;
+				if (this.boardGame[x][y].getCellType() == CellType.MINE)
+				{
+					final Cell currentMine = this.boardGame[x][y];
+					currentMine.show();
+					Platform.runLater(() -> this.observer.updateCell(currentMine));
+				}
 			}
-			else
-			{
-				selectedCell.mark();
-				this.score++;
-				this.nbMines--;
-			}
+		}
 
-			Platform.runLater(() ->
+		Platform.runLater(() -> this.observer.playerIsDead());
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.IMinesweeperObservable#onLeftMouseClicked(int, int)
+	 */
+	@Override
+	public void onLeftMouseClicked(int coordX, int coordY)
+	{
+		this.boardGame[coordX][coordY].notifyHasBeenLeftClicked();
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.IMinesweeperObservable#onRightMouseClicked(int, int)
+	 */
+	@Override
+	public void onRightMouseClicked(int coordX, int coordY)
+	{
+		this.boardGame[coordX][coordY].notifyHasBeenRightClicked();
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.IMinesweeperObservable#startTimer()
+	 */
+	@Override
+	public void startTimer()
+	{
+		if (this.timerThread == null)
+		{
+			this.timerThread = new Thread(() ->
 			{
-				this.observer.setNbMines(this.nbMines);
-				this.observer.setScore(this.score);
-				this.observer.updateCell(coordX, coordY, selectedCell);
+				final StopWatch stopWatch = new StopWatch();
+				stopWatch.start();
+
+				while (!Thread.currentThread().isInterrupted())
+				{
+					try
+					{
+						Thread.sleep(250);
+						Platform.runLater(() -> this.observer.setTime(stopWatch.getElapsedTimeSecs()));
+					}
+					catch (Exception e)
+					{
+						break;
+					}
+				}
 			});
 
-			checkPossibleVictory();
+			this.timerThread.start();
+		}
+	}
+
+	/**
+	 * @see fr.polytech.demineur.model.IMinesweeperObservable#stopTimer()
+	 */
+	@Override
+	public void stopTimer()
+	{
+		if (this.timerThread != null)
+		{
+			this.timerThread.interrupt();
+			this.timerThread = null;
 		}
 	}
 
