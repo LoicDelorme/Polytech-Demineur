@@ -4,57 +4,40 @@
   <interface id="1" language="java" name="fr.polytech.demineur.controller.IMinesweeperObserver" project="DemineurFX" 
     file="/DemineurFX/src/fr/polytech/demineur/controller/IMinesweeperObserver.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="452" y="527"/>    
+    <position height="-1" width="-1" x="495" y="577"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </interface>  
-  <class id="2" language="java" name="fr.polytech.demineur.model.StopWatch" project="DemineurFX" 
-    file="/DemineurFX/src/fr/polytech/demineur/model/StopWatch.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="485" y="311"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="3" language="java" name="fr.polytech.demineur.controller.MinesweeperController" project="DemineurFX" 
+  <class id="2" language="java" name="fr.polytech.demineur.controller.MinesweeperController" project="DemineurFX" 
     file="/DemineurFX/src/fr/polytech/demineur/controller/MinesweeperController.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="549" width="278" x="42" y="37"/>    
+    <position height="549" width="278" x="41" y="302"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="fr.polytech.demineur.Launcher" project="DemineurFX" 
+  <class id="3" language="java" name="fr.polytech.demineur.Launcher" project="DemineurFX" 
     file="/DemineurFX/src/fr/polytech/demineur/Launcher.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="117" width="113" x="360" y="37"/>    
+    <position height="-1" width="-1" x="495" y="384"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <realization id="5">    
+  <dependency id="4">    
     <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <realization id="5">    
+    <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="1"/>  
   </realization>  
-  <association id="6">    
-    <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="7" name="stopWatch">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="8" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="2" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    
